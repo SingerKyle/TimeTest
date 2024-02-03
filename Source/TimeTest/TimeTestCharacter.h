@@ -8,6 +8,7 @@
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "TimeTestCharacter.generated.h"
 
 class UInputComponent;
@@ -45,7 +46,10 @@ class ATimeTestCharacter : public ACharacter
 	/** Shift Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* ShiftTime;
-	
+
+	UPROPERTY(EditAnywhere) UStaticMeshComponent* cameraMesh;
+
+	UPROPERTY(EditAnywhere) USpringArmComponent* SpringArm;
 public:
 	ATimeTestCharacter();
 

@@ -27,17 +27,31 @@ ATimeTestCharacter::ATimeTestCharacter()
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm_Camera"));
+	SpringArm->SetupAttachment(FirstPersonCameraComponent);
+
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Mesh1P->SetOnlyOwnerSee(true);
-	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
+	Mesh1P->SetupAttachment(SpringArm);
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CameraMesh(TEXT("'/Game/Assets/SM_Camera02.SM_Camera02'"));
+	if (CameraMesh.Succeeded())
+	{
+		UStaticMesh* camMesh = CameraMesh.Object;
+		cameraMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sword"));
+		cameraMesh->SetStaticMesh(camMesh);
+		cameraMesh->SetupAttachment(Mesh1P, "hand_r_camera");
+		//cameraMesh->SetRelativeLocation(FVector(40, 0, -20));
+		cameraMesh->SetRelativeRotation(FRotator(0,90,0));
+	}
+
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Timeglass Root"));
-	SceneComponent->SetRelativeLocation(FVector(FirstPersonCameraComponent->GetRelativeLocation().X, FirstPersonCameraComponent->GetRelativeLocation().Y, -5000.0f));
+	SceneComponent->SetRelativeLocation(FVector(cameraMesh->GetRelativeLocation().X, cameraMesh->GetRelativeLocation().Y, -5000.0f));
 	SceneComponent->SetupAttachment(GetCapsuleComponent());
 
 	// Attach camera view to character.
@@ -51,11 +65,13 @@ ATimeTestCharacter::ATimeTestCharacter()
 	{
 		PlaneMeshComponent->SetStaticMesh(PlaneMeshAsset.Object);
 	}
-	PlaneMeshComponent->SetRelativeLocation(FVector(41.0f, -20.0f, -10.0f));
-	PlaneMeshComponent->SetRelativeRotation(FRotator(0.0f, 60.0f, 90.0f));
-	PlaneMeshComponent->SetRelativeScale3D(FVector(0.25, 0.25, 0.25));
-
-	PlaneMeshComponent->SetupAttachment(FirstPersonCameraComponent);
+	//PlaneMeshComponent->SetRelativeLocation(FVector(41.0f, -20.0f, -10.0f));
+	//PlaneMeshComponent->SetRelativeRotation(FRotator(0.0f, 60.0f, 90.0f));
+	//PlaneMeshComponent->SetRelativeScale3D(FVector(0.25, 0.25, 0.25));
+	PlaneMeshComponent->SetRelativeLocation(FVector(0.0f, -10.0f, 0.0f));
+	PlaneMeshComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+	PlaneMeshComponent->SetRelativeScale3D(FVector(0.1, 0.05, 0.05));
+	PlaneMeshComponent->SetupAttachment(cameraMesh);
 }
 
 void ATimeTestCharacter::BeginPlay()

@@ -67,6 +67,7 @@ Build/*/**
 Saved/*
 
 Content/Assets/*
+Content/StarterContent/*
 
 # Compiled source files for the engine to use
 Intermediate/*
