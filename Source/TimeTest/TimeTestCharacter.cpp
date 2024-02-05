@@ -198,18 +198,18 @@ void ATimeTestCharacter::Interact()
 		// Optionally, draw point at hit location
 		DrawDebugPoint(GetWorld(), OutHit.Location, 10.0f, FColor::Red, false, 2.0f);
 
-		AInspectItem* inspect = Cast<AInspectItem>(OutHit.GetActor());
-		if (inspect)
+		ABaseInspection* item = Cast<ABaseInspection>(OutHit.GetActor());
+		if (item)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test!"));
-			inspect->Interact_Implementation();
+			item->Interact_Implementation();
 
-			if (InspectItem)
+			if (InspectItem && item->getInteractive() == true)
 			{
 				GetCharacterMovement()->MaxWalkSpeed = 0.0f;
 				isViewingItem = true;
-				InspectItem->SetStaticMesh(inspect->ItemMesh->GetStaticMesh());
-				InspectItem->SetRelativeScale3D(inspect->ItemMesh->GetRelativeScale3D() / 2);
+				InspectItem->SetStaticMesh(item->ItemMesh->GetStaticMesh());
+				InspectItem->SetRelativeScale3D(item->ItemMesh->GetRelativeScale3D() / 2);
 				GetMesh1P()->ToggleVisibility(true);
 				InspectItem->SetVisibility(true);
 			}
