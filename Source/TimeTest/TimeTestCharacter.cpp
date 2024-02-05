@@ -1,12 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TimeTestCharacter.h"
+
+#include "AssetSelection.h"
 #include "TimeTestProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InspectItem.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,13 +69,25 @@ ATimeTestCharacter::ATimeTestCharacter()
 	{
 		PlaneMeshComponent->SetStaticMesh(PlaneMeshAsset.Object);
 	}
-	//PlaneMeshComponent->SetRelativeLocation(FVector(41.0f, -20.0f, -10.0f));
-	//PlaneMeshComponent->SetRelativeRotation(FRotator(0.0f, 60.0f, 90.0f));
-	//PlaneMeshComponent->SetRelativeScale3D(FVector(0.25, 0.25, 0.25));
 	PlaneMeshComponent->SetRelativeLocation(FVector(0.0f, -10.0f, 0.0f));
 	PlaneMeshComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 	PlaneMeshComponent->SetRelativeScale3D(FVector(0.1, 0.05, 0.05));
 	PlaneMeshComponent->SetupAttachment(cameraMesh);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> placeholder(TEXT("'/Game/StarterContent/Shapes/Shape_Plane.Shape_Plane'"));
+	if (placeholder.Succeeded())
+	{
+		UStaticMesh* testmesh = placeholder.Object;
+		InspectItem->SetStaticMesh(testmesh);
+		InspectItem->SetRelativeLocation(FVector(55, 0, -15));
+		InspectItem->SetRelativeScale3D(FVector(.15, .15, .15));
+		InspectItem->SetupAttachment(GetFirstPersonCameraComponent());
+		InspectItem->bWantsInitializeComponent = true;
+	}
+
+	Item = InspectItem;
+
+	isViewingItem = false;
 }
 
 void ATimeTestCharacter::BeginPlay()
@@ -87,7 +103,31 @@ void ATimeTestCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	
+	InspectItem = getStaticMesh();
+	if (InspectItem)
+	{
+		InspectItem->SetVisibility(false);
+		InspectItem->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
 
+void ATimeTestCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (isViewingItem && GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::LeftMouseButton))
+	{
+		InspectItem = getStaticMesh();
+		APlayerController* controller = GetWorld()->GetFirstPlayerController();
+		FVector2D Mouse;
+		controller->GetInputMouseDelta(Mouse.X, Mouse.Y);
+		//FRotator temp(InspectItem->GetRelativeRotation().Pitch + Mouse.Y * 5.0f, InspectItem->GetRelativeRotation().Yaw + Mouse.X * 5.0f, InspectItem->GetRelativeRotation().Roll);
+		FRotator temp(Mouse.X * 5.0f, 0, -Mouse.Y * 5.0f);
+		
+		//InspectItem->SetRelativeRotation(temp);
+		InspectItem->AddWorldRotation(temp);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -108,6 +148,7 @@ void ATimeTestCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATimeTestCharacter::Look);
 
 		PlayerInputComponent->BindAction("ShiftTime", IE_Pressed, this, &ATimeTestCharacter::ShiftTimes);
+		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATimeTestCharacter::Interact);
 	}
 }
 
@@ -130,7 +171,50 @@ void ATimeTestCharacter::ShiftTimes()
 		SceneComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -5000));
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Some debug message!"));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Some debug message!"));
+}
+
+void ATimeTestCharacter::Interact()
+{
+	InspectItem = getStaticMesh();
+	if (isViewingItem)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+		isViewingItem = !isViewingItem;
+		GetMesh1P()->ToggleVisibility(true);
+		InspectItem->SetVisibility(false);
+		//return;
+	}
+
+	FHitResult OutHit;
+	FVector Start = GetFirstPersonCameraComponent()->GetComponentLocation();
+	FVector End = Start + GetFirstPersonCameraComponent()->GetForwardVector() * 1000;
+
+	if(GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility))
+	{
+		// Draw line from start to hit location
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
+
+		// Optionally, draw point at hit location
+		DrawDebugPoint(GetWorld(), OutHit.Location, 10.0f, FColor::Red, false, 2.0f);
+
+		AInspectItem* inspect = Cast<AInspectItem>(OutHit.GetActor());
+		if (inspect)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test!"));
+			inspect->Interact_Implementation();
+
+			if (InspectItem)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+				isViewingItem = true;
+				InspectItem->SetStaticMesh(inspect->ItemMesh->GetStaticMesh());
+				InspectItem->SetRelativeScale3D(inspect->ItemMesh->GetRelativeScale3D() / 2);
+				GetMesh1P()->ToggleVisibility(true);
+				InspectItem->SetVisibility(true);
+			}
+		}
+	}
 }
 
 
@@ -152,7 +236,7 @@ void ATimeTestCharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
+	if (Controller != nullptr && isViewingItem == false)
 	{
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);

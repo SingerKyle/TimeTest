@@ -49,12 +49,17 @@ class ATimeTestCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere) UStaticMeshComponent* cameraMesh;
 
+	UPROPERTY(EditAnywhere) UStaticMeshComponent* InspectItem = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Inspect Item Component"));
+	TObjectPtr<UStaticMeshComponent> Item;
+
 	UPROPERTY(EditAnywhere) USpringArmComponent* SpringArm;
 public:
 	ATimeTestCharacter();
 
 protected:
 	virtual void BeginPlay();
+
+	virtual void Tick(float DeltaTime) override;
 
 public:
 		
@@ -87,7 +92,13 @@ protected:
 	// End of APawn interface
 	virtual void UpdateCapture();
 
+	UFUNCTION() UStaticMeshComponent* getStaticMesh()
+	{
+		return Item;
+	}
+
 	virtual void ShiftTimes();
+	void Interact();
 
 public:
 	/** Returns Mesh1P subobject **/
@@ -102,5 +113,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") USceneComponent* SceneComponent;
 
 	bool isFlipped;
+	bool isViewingItem;
 };
 

@@ -3,25 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseInspection.h"
-#include "Components/SphereComponent.h"
-#include "GameFramework/Actor.h"
 #include "InteractionInterface.h"
-#include "BaseInspection.h"
-#include "InspectItem.generated.h"
+#include "GameFramework/Actor.h"
+#include "BaseInspection.generated.h"
 
 UCLASS()
-class TIMETEST_API AInspectItem : public ABaseInspection
+class TIMETEST_API ABaseInspection : public AActor, public IInteractionInterface
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere) USphereComponent* ItemTrigger;
 	
 public:	
 	// Sets default values for this actor's properties
-	AInspectItem();
+	ABaseInspection();
 
-	//UPROPERTY(EditAnywhere) UStaticMeshComponent* ItemMesh;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -32,4 +26,7 @@ public:
 
 	virtual void Interact_Implementation() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) USceneComponent* _rootComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) UStaticMeshComponent* ItemMesh;
 };

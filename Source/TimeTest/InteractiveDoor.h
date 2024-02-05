@@ -4,24 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "BaseInspection.h"
-#include "Components/SphereComponent.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
-#include "InteractionInterface.h"
-#include "BaseInspection.h"
-#include "InspectItem.generated.h"
+#include "InteractiveDoor.generated.h"
 
 UCLASS()
-class TIMETEST_API AInspectItem : public ABaseInspection
+class TIMETEST_API AInteractiveDoor : public ABaseInspection
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere) USphereComponent* ItemTrigger;
 	
 public:	
 	// Sets default values for this actor's properties
-	AInspectItem();
+	AInteractiveDoor();
 
-	//UPROPERTY(EditAnywhere) UStaticMeshComponent* ItemMesh;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,6 +25,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	bool closed;
+
 	virtual void Interact_Implementation() override;
 
+	UFUNCTION() void OnFinish();
+	UFUNCTION() void Test(float val);
+
+	// setup timeline
+	FOnTimelineFloat TimelineEvent{};
+	FOnTimelineEvent TimelineProgress{};
+
+	UPROPERTY(EditAnywhere) UTimelineComponent* DoorTimeline;
+
+	UPROPERTY(EditAnywhere) UCurveFloat* CurveFloat;
 };
