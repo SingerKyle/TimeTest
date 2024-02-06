@@ -49,9 +49,7 @@ void AInteractiveDoor::Tick(float DeltaTime)
 
 void AInteractiveDoor::Interact_Implementation()
 {
-	ABaseInspection::Interact_Implementation();
-
-	if(closed)
+	if (closed)
 	{
 		DoorTimeline->PlayFromStart();
 	}
@@ -61,6 +59,8 @@ void AInteractiveDoor::Interact_Implementation()
 	}
 
 	closed = !closed;
+	ABaseInspection::Interact_Implementation();
+
 }
 
 void AInteractiveDoor::OnFinish()
