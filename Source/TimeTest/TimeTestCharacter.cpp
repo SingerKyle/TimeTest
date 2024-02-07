@@ -10,7 +10,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InspectItem.h"
+#include "SaveGameInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -79,7 +81,7 @@ ATimeTestCharacter::ATimeTestCharacter()
 	{
 		UStaticMesh* testmesh = placeholder.Object;
 		InspectItem->SetStaticMesh(testmesh);
-		InspectItem->SetRelativeLocation(FVector(55, 0, -15));
+		InspectItem->SetRelativeLocation(FVector(60, 0, 0));
 		InspectItem->SetRelativeScale3D(FVector(.15, .15, .15));
 		InspectItem->SetupAttachment(GetFirstPersonCameraComponent());
 		InspectItem->bWantsInitializeComponent = true;
@@ -88,12 +90,15 @@ ATimeTestCharacter::ATimeTestCharacter()
 	Item = InspectItem;
 
 	isViewingItem = false;
+
 }
 
 void ATimeTestCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	
 
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -123,11 +128,12 @@ void ATimeTestCharacter::Tick(float DeltaTime)
 		FVector2D Mouse;
 		controller->GetInputMouseDelta(Mouse.X, Mouse.Y);
 		//FRotator temp(InspectItem->GetRelativeRotation().Pitch + Mouse.Y * 5.0f, InspectItem->GetRelativeRotation().Yaw + Mouse.X * 5.0f, InspectItem->GetRelativeRotation().Roll);
-		FRotator temp(Mouse.X * 5.0f, 0, -Mouse.Y * 5.0f);
+		FRotator temp(-Mouse.X * 5.0f, 0, -Mouse.Y * 5.0f);
 		
-		//InspectItem->SetRelativeRotation(temp);
+		//InspectItem->SetRelativeRotation(temp);	
 		InspectItem->AddWorldRotation(temp);
 	}
+
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -149,6 +155,8 @@ void ATimeTestCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 
 		PlayerInputComponent->BindAction("ShiftTime", IE_Pressed, this, &ATimeTestCharacter::ShiftTimes);
 		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATimeTestCharacter::Interact);
+		PlayerInputComponent->BindAction("Save", IE_Pressed, this, &ATimeTestCharacter::Save);
+		PlayerInputComponent->BindAction("Load", IE_Pressed, this, &ATimeTestCharacter::Load);
 	}
 }
 
@@ -217,6 +225,23 @@ void ATimeTestCharacter::Interact()
 	}
 }
 
+void ATimeTestCharacter::Save()
+{
+	USaveGameInstance* saveGame = Cast<USaveGameInstance>(GetGameInstance());
+	if (saveGame)
+	{
+		saveGame->SaveGame();
+	}
+}
+
+void ATimeTestCharacter::Load()
+{
+	USaveGameInstance* saveGame = Cast<USaveGameInstance>(GetGameInstance());
+	if (saveGame)
+	{
+		saveGame->LoadGame();
+	}
+}
 
 void ATimeTestCharacter::Move(const FInputActionValue& Value)
 {
@@ -255,3 +280,5 @@ bool ATimeTestCharacter::GetHasRifle()
 {
 	return bHasRifle;
 }
+
+// Functions to allow the player to save and load game state
