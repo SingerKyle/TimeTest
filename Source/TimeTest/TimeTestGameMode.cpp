@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TimeTestGameMode.h"
+
+#include "SaveGameInstance.h"
 #include "TimeTestCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 

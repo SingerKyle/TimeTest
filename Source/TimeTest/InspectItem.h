@@ -7,7 +7,6 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
 #include "InteractionInterface.h"
-#include "BaseInspection.h"
 #include "InspectItem.generated.h"
 
 UCLASS()
