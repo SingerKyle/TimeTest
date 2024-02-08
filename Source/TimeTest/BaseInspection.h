@@ -20,11 +20,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	bool interactive = false;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Interact_Implementation() override;
+
+	bool getInteractive() { return interactive; }
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) USceneComponent* _rootComponent;
 

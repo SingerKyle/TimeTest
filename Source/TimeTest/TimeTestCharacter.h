@@ -9,6 +9,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameSaveSystem.h"
 #include "TimeTestCharacter.generated.h"
 
 class UInputComponent;
@@ -79,6 +80,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetHasRifle();
 
+private:
+ 
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -86,7 +89,6 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	// End of APawn interface
@@ -99,6 +101,8 @@ protected:
 
 	virtual void ShiftTimes();
 	void Interact();
+	void Save();
+	void Load();
 
 public:
 	/** Returns Mesh1P subobject **/

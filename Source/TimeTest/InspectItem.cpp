@@ -21,6 +21,8 @@ AInspectItem::AInspectItem()
 		ItemTrigger->SetupAttachment(RootComponent);
 	}*/
 
+	interactive = true;
+
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ItemMeshComp(TEXT("'/Game/StarterContent/Shapes/Shape_Cube.Shape_Cube'"));
 	if (ItemMeshComp.Succeeded())
 	{
