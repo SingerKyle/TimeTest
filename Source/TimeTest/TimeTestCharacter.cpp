@@ -153,7 +153,7 @@ void ATimeTestCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATimeTestCharacter::Look);
 
-		PlayerInputComponent->BindAction("ShiftTime", IE_Pressed, this, &ATimeTestCharacter::ShiftTimes);
+		//PlayerInputComponent->BindAction("ShiftTime", IE_Pressed, this, &ATimeTestCharacter::ShiftTimes);
 		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATimeTestCharacter::Interact);
 		PlayerInputComponent->BindAction("Save", IE_Pressed, this, &ATimeTestCharacter::Save);
 		PlayerInputComponent->BindAction("Load", IE_Pressed, this, &ATimeTestCharacter::Load);
@@ -191,7 +191,7 @@ void ATimeTestCharacter::Interact()
 		isViewingItem = !isViewingItem;
 		GetMesh1P()->ToggleVisibility(true);
 		InspectItem->SetVisibility(false);
-		InspectItem->SetRelativeRotation(FRotator(0, 0, 0));
+		//return;
 	}
 
 	FHitResult OutHit;
