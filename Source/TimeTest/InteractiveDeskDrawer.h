@@ -3,34 +3,40 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "BaseInspection.h"
-#include "Components/PointLightComponent.h"
-#include "InteractiveLight.generated.h"
+#include "GameFramework/Actor.h"
+#include "Components/TimelineComponent.h"
+#include "InteractiveDeskDrawer.generated.h"
 
 UCLASS()
-class TIMETEST_API AInteractiveLight : public ABaseInspection
+class TIMETEST_API AInteractiveDeskDrawer : public ABaseInspection
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AInteractiveLight();
+	AInteractiveDeskDrawer();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	bool closed;
+
 	virtual void Interact_Implementation() override;
 
-	UPROPERTY() bool state;
+	UFUNCTION() void Test(float val);
 
-	UPROPERTY(EditAnywhere) int intensity;
+	// setup timeline
+	FOnTimelineFloat TimelineEvent{};
+	FOnTimelineEvent TimelineProgress{};
 
-	UPROPERTY(EditAnywhere) UPointLightComponent* Light;
+	UPROPERTY(EditAnywhere) UTimelineComponent* DrawerTimeline;
+
+	UPROPERTY(EditAnywhere) UCurveFloat* CurveFloat;
+
 };

@@ -50,7 +50,7 @@ class ATimeTestCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere) UStaticMeshComponent* cameraMesh;
 
-	UPROPERTY(EditAnywhere) UStaticMeshComponent* InspectItem = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Inspect Item Component"));
+	UPROPERTY(EditAnywhere) UStaticMeshComponent* InspectItem;
 	TObjectPtr<UStaticMeshComponent> Item;
 
 	UPROPERTY(EditAnywhere) USpringArmComponent* SpringArm;
