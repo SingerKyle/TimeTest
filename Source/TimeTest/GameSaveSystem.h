@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseInspection.h"
 #include "GameFramework/SaveGame.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameSaveSystem.generated.h"
@@ -28,6 +29,25 @@ public:
 
 };
 
+USTRUCT(BlueprintType)
+struct FInteractiveItemsData
+{
+	GENERATED_BODY()
+
+public:
+
+	/* Identifier for which Actor this belongs to */
+	UPROPERTY() TArray<ABaseInspection*>ItemArray;
+
+	/* For movable Actors, keep location,rotation,scale. */
+	UPROPERTY() TArray<FTransform>Transform;
+
+	//UPROPERTY() float Sanity;
+
+	// Inventory item store here somewhere - array of items:
+
+};
+
 /**
  * 
  */
@@ -41,4 +61,5 @@ public:
 	UGameSaveSystem();
 
 	UPROPERTY() FPlayerSaveData P_Save;
+	UPROPERTY() FInteractiveItemsData Item_save;
 };
