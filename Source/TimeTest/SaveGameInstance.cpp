@@ -2,7 +2,6 @@
 
 
 #include "SaveGameInstance.h"
-
 #include "BaseInspection.h"
 #include "TimeTestCharacter.h"
 #include "Kismet/GameplayStatics.h"

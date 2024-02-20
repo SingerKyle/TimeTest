@@ -10,6 +10,7 @@ AInteractiveDoor::AInteractiveDoor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ItemMeshComp(TEXT("'/Game/AbandonedPlaySchool/Meshes/SM_Door.SM_Door'"));
+
 	if (ItemMeshComp.Succeeded())
 	{
 		UStaticMesh* ObjectMesh = ItemMeshComp.Object;

@@ -19,6 +19,7 @@ AInteractiveLight::AInteractiveLight()
 	Light->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ItemMeshComp(TEXT("'/Game/Assets/Mesh_Table_Lamp.Mesh_Table_Lamp'"));
+
 	if (ItemMeshComp.Succeeded())
 	{
 		UStaticMesh* ObjectMesh = ItemMeshComp.Object;
@@ -55,4 +56,3 @@ void AInteractiveLight::Interact_Implementation()
 
 	state = !state;
 }
-
