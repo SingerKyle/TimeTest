@@ -2,6 +2,7 @@
 
 #include "TimeTestCharacter.h"
 
+//#include "AssetSelection.h"
 #include "TimeTestProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -20,7 +21,7 @@
 ATimeTestCharacter::ATimeTestCharacter()
 {
 	// Character doesnt have a rifle at start
-	bHasRifle = false;
+	bHasCamera = false;
 	isFlipped = false;
 	
 	// Set size for collision capsule
@@ -43,25 +44,28 @@ ATimeTestCharacter::ATimeTestCharacter()
 	Mesh1P->CastShadow = false;
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CameraMesh(TEXT("'/Game/Assets/SM_Camera02.SM_Camera02'"));
-	if (CameraMesh.Succeeded())
-	{
-		UStaticMesh* camMesh = CameraMesh.Object;
+	
+	//static ConstructorHelpers::FObjectFinder<UStaticMesh> CameraMesh(TEXT("'/Game/3-Assets/SM_Camera02.SM_Camera02'"));
+	//if (cameraMesh)
+	//{
+		//UStaticMesh* camMesh = CameraMesh.Object;
 		cameraMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sword"));
-		cameraMesh->SetStaticMesh(camMesh);
+		//cameraMesh->SetStaticMesh(camMesh);
 		cameraMesh->SetupAttachment(Mesh1P, "hand_r_camera");
-		//cameraMesh->SetRelativeLocation(FVector(40, 0, -20));
+		cameraMesh->SetRelativeLocation(FVector(40, 0, -20));
 		cameraMesh->SetRelativeRotation(FRotator(0,90,0));
-	}
+	//}
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Timeglass Root"));
-	SceneComponent->SetRelativeLocation(FVector(cameraMesh->GetRelativeLocation().X, cameraMesh->GetRelativeLocation().Y, -5000.0f));
+	SceneComponent->SetRelativeLocation(FVector(cameraMesh->GetRelativeLocation().X, cameraMesh->GetRelativeLocation().Y, -10000.0f));
 	SceneComponent->SetupAttachment(GetCapsuleComponent());
+
+	MirrorSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MirrorSpringArm_Camera"));
+	MirrorSpringArm->SetupAttachment(SceneComponent);
 
 	// Attach camera view to character.
 	SceneCaptureComponent = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("Timeglass Component"));
-	SceneCaptureComponent->SetupAttachment(SceneComponent);
+	SceneCaptureComponent->SetupAttachment(MirrorSpringArm);
 
 	// Create Plane Mesh Component
 	PlaneMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlaneMeshComponent"));
@@ -271,14 +275,14 @@ void ATimeTestCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ATimeTestCharacter::SetHasRifle(bool bNewHasRifle)
+void ATimeTestCharacter::SetHasCamera(bool bNewHasCamera)
 {
-	bHasRifle = bNewHasRifle;
+	bHasCamera = bNewHasCamera;
 }
 
-bool ATimeTestCharacter::GetHasRifle()
+bool ATimeTestCharacter::GetHasCamera()
 {
-	return bHasRifle;
+	return bHasCamera;
 }
 
 // Functions to allow the player to save and load game state

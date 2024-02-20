@@ -2,6 +2,7 @@
 
 
 #include "SaveGameInstance.h"
+
 #include "BaseInspection.h"
 #include "TimeTestCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -32,6 +33,7 @@ void USaveGameInstance::CreateSaveFile()
 
 void USaveGameInstance::SaveGame()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test test!"));
 	// initialise save game object
 	UGameSaveSystem* SaveSlot = Cast<UGameSaveSystem>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
 

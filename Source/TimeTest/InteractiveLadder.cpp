@@ -10,7 +10,7 @@ AInteractiveLadder::AInteractiveLadder()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> animationComp(TEXT("'/Game/Assets/ImportedAssets/atticEntrance/Attic_Montage.Attic_Montage'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> animationComp(TEXT("'/Game/1-Animations/Attic_Montage.Attic_Montage'"));
 	if (animationComp.Succeeded())
 	{
 		OpenAnim = animationComp.Object;
@@ -19,7 +19,7 @@ AInteractiveLadder::AInteractiveLadder()
 		SkeletalMesh->SetupAttachment(RootComponent);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> closedComp (TEXT("'/Game/Assets/ImportedAssets/atticEntrance/attic_montage_close.attic_montage_close'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> closedComp (TEXT("'/Game/1-Animations/attic_montage_close.attic_montage_close'"));
 	if (closedComp.Succeeded())
 	{
 		ClosedAnim = closedComp.Object;

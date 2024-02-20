@@ -11,7 +11,7 @@ AInteractiveDeskDrawer::AInteractiveDeskDrawer()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ItemMeshComp(TEXT("'/Game/Assets/Mesh_Desk_Drawer_01_01.Mesh_Desk_Drawer_01_01'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ItemMeshComp(TEXT("'/Game/3-Assets/Mesh_Desk_Drawer_01_01.Mesh_Desk_Drawer_01_01'"));
 	if (ItemMeshComp.Succeeded())
 	{
 		UStaticMesh* ObjectMesh = ItemMeshComp.Object;

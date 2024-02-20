@@ -25,6 +25,11 @@
 		{
 			"Name": "MultiUserClient",
 			"Enabled": true
-		}
+		},
+		{
+			"Name": "TextureFormatOodle",
+			"Enabled": false
+		},
+		
 	]
 }
