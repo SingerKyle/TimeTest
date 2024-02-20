@@ -11,5 +11,6 @@ public class TimeTestTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
 		ExtraModuleNames.Add("TimeTest");
+		//PublicDependencyModuleNames.AddRange(new string[] { ..."EnhancedInput"...});
 	}
 }

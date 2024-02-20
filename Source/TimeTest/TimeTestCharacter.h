@@ -10,7 +10,10 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameSaveSystem.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "TimeTestCharacter.generated.h"
+
 
 class UInputComponent;
 class USkeletalMeshComponent;
@@ -19,7 +22,8 @@ class UCameraComponent;
 class UAnimMontage;
 class USoundBase;
 
-UCLASS(config=Game)
+
+UCLASS(config = Game)
 class ATimeTestCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -48,12 +52,13 @@ class ATimeTestCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* ShiftTime;
 
-	UPROPERTY(EditAnywhere) UStaticMeshComponent* cameraMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = "true")) TObjectPtr<UStaticMeshComponent> cameraMesh;
 
 	UPROPERTY(EditAnywhere) UStaticMeshComponent* InspectItem;
 	TObjectPtr<UStaticMeshComponent> Item;
 
 	UPROPERTY(EditAnywhere) USpringArmComponent* SpringArm;
+	UPROPERTY(EditAnywhere) USpringArmComponent* MirrorSpringArm;
 public:
 	ATimeTestCharacter();
 
@@ -70,15 +75,15 @@ public:
 
 	/** Bool for AnimBP to switch to another animation set */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
-	bool bHasRifle;
+	bool bHasCamera;
 
 	/** Setter to set the bool */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void SetHasRifle(bool bNewHasRifle);
+	void SetHasCamera(bool bNewHasRifle);
 
 	/** Getter for the bool */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	bool GetHasRifle();
+	bool GetHasCamera();
 
 private:
  

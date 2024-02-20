@@ -13,6 +13,14 @@ ABaseInspection::ABaseInspection()
 	RootComponent = _rootComponent;
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Item Mesh"));
+
+	/*
+	// audio
+	static ConstructorHelpers::FObjectFinder<USoundBase> rockSound(TEXT("/Game/Audio/RockSmash.RockSmash"));
+	if (rockSound.Succeeded())
+	{
+		throwSound = rockSound.Object;
+	}*/
 }
 
 // Called when the game starts or when spawned
@@ -33,5 +41,9 @@ void ABaseInspection::Interact_Implementation()
 {
 	IInteractionInterface::Interact_Implementation();
 
+	// Play sound cues here
+	//float volumeMultiplier = 0.5f;
+	// if(throwSound)
+	//UGameplayStatics::PlaySoundAtLocation(this, throwSound, GetActorLocation(), FRotator::ZeroRotator, volumeMultiplier);
 }
 

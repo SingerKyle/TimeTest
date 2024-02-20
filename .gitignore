@@ -72,7 +72,12 @@ Content/RetroProps/*
 Content/Materials/*
 Content/Assets/*
 Content/StarterContent/*
-
+Content/1-Animations/*
+Content/2-Audio/*
+Content/3-Assets/*
+Content/6-UI/*
+Content/7-Materials/*
+Content/8-Character/*
 
 # Compiled source files for the engine to use
 Intermediate/*

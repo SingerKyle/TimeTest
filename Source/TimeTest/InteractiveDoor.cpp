@@ -9,8 +9,7 @@ AInteractiveDoor::AInteractiveDoor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ItemMeshComp(TEXT("'/Game/AbandonedPlaySchool/Meshes/SM_Door.SM_Door'"));
-
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ItemMeshComp(TEXT("'/Game/3-Assets/SM_Door.SM_Door'"));
 	if (ItemMeshComp.Succeeded())
 	{
 		UStaticMesh* ObjectMesh = ItemMeshComp.Object;

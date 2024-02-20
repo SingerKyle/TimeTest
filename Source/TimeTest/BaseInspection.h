@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "InteractionInterface.h"
 #include "GameFramework/Actor.h"
+#include "TimeTest.h"
 #include "BaseInspection.generated.h"
 
 UCLASS()
@@ -32,4 +33,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) USceneComponent* _rootComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) UStaticMeshComponent* ItemMesh;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly) FInventoryItem ItemData;
+
+	//Audio
+	//UPROPERTY(EditAnywhere, Category = "Audio") class USoundBase* throwSound;
 };
