@@ -2,7 +2,6 @@
 
 #include "TimeTestCharacter.h"
 
-#include "AssetSelection.h"
 #include "TimeTestProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -80,14 +79,14 @@ ATimeTestCharacter::ATimeTestCharacter()
 	if (placeholder.Succeeded())
 	{
 		UStaticMesh* testmesh = placeholder.Object;
+		InspectItem = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Inspect Item"));
 		InspectItem->SetStaticMesh(testmesh);
-		InspectItem->SetRelativeLocation(FVector(60, 0, 0));
+		InspectItem->SetRelativeLocation(FVector(20, 0, 0));
 		InspectItem->SetRelativeScale3D(FVector(.15, .15, .15));
+		InspectItem->SetRelativeRotation(FRotator(0.0f, 0.0f, 90.0f));
 		InspectItem->SetupAttachment(GetFirstPersonCameraComponent());
-		InspectItem->bWantsInitializeComponent = true;
+		Item = InspectItem;
 	}
-
-	Item = InspectItem;
 
 	isViewingItem = false;
 
@@ -128,7 +127,7 @@ void ATimeTestCharacter::Tick(float DeltaTime)
 		FVector2D Mouse;
 		controller->GetInputMouseDelta(Mouse.X, Mouse.Y);
 		//FRotator temp(InspectItem->GetRelativeRotation().Pitch + Mouse.Y * 5.0f, InspectItem->GetRelativeRotation().Yaw + Mouse.X * 5.0f, InspectItem->GetRelativeRotation().Roll);
-		FRotator temp(-Mouse.X * 5.0f, 0, -Mouse.Y * 5.0f);
+		FRotator temp(0, -Mouse.X * 1.5, -Mouse.Y * 1.5);
 		
 		//InspectItem->SetRelativeRotation(temp);	
 		InspectItem->AddWorldRotation(temp);
@@ -153,7 +152,7 @@ void ATimeTestCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATimeTestCharacter::Look);
 
-		PlayerInputComponent->BindAction("ShiftTime", IE_Pressed, this, &ATimeTestCharacter::ShiftTimes);
+		//PlayerInputComponent->BindAction("ShiftTime", IE_Pressed, this, &ATimeTestCharacter::ShiftTimes);
 		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ATimeTestCharacter::Interact);
 		PlayerInputComponent->BindAction("Save", IE_Pressed, this, &ATimeTestCharacter::Save);
 		PlayerInputComponent->BindAction("Load", IE_Pressed, this, &ATimeTestCharacter::Load);
@@ -218,6 +217,7 @@ void ATimeTestCharacter::Interact()
 				isViewingItem = true;
 				InspectItem->SetStaticMesh(item->ItemMesh->GetStaticMesh());
 				InspectItem->SetRelativeScale3D(item->ItemMesh->GetRelativeScale3D() / 2);
+				InspectItem->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 				GetMesh1P()->ToggleVisibility(true);
 				InspectItem->SetVisibility(true);
 			}

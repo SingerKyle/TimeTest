@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "BaseInspection.h"
+#include "Components/PointLightComponent.h"
 #include "InteractiveLight.generated.h"
 
 UCLASS()
@@ -25,4 +26,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
+	virtual void Interact_Implementation() override;
+
+	UPROPERTY() bool state;
+
+	UPROPERTY(EditAnywhere) int intensity;
+
+	UPROPERTY(EditAnywhere) UPointLightComponent* Light;
 };

@@ -67,9 +67,12 @@ Build/*/**
 Saved/*
 
 Content/AbandonedPlaySchool/*
+Content/Megascans/*
 Content/RetroProps/*
+Content/Materials/*
 Content/Assets/*
 Content/StarterContent/*
+
 
 # Compiled source files for the engine to use
 Intermediate/*

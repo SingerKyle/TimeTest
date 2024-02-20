@@ -34,5 +34,5 @@ public:
 
     // Functions to save player and item locations / activity etc
     void SavePlayerCharacter(UGameSaveSystem* SaveSlot);
-    void SaveInteractableItems();
+    void SaveInteractableItems(UGameSaveSystem* SaveSlot);
 };

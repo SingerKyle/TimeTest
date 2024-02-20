@@ -2,7 +2,7 @@
 
 
 #include "SaveGameInstance.h"
-
+#include "BaseInspection.h"
 #include "TimeTestCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -39,6 +39,7 @@ void USaveGameInstance::SaveGame()
 	if (SaveSlot != nullptr)
 	{
 		SavePlayerCharacter(SaveSlot);
+		SaveInteractableItems(SaveSlot);
 		UGameplayStatics::SaveGameToSlot(SaveSlot, SaveSlotName, 0);
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Saving!"));
 	}
@@ -61,6 +62,34 @@ void USaveGameInstance::LoadGame()
 		player->SetActorTransform(SaveSlot->P_Save.Transform);
 		player->GetController()->SetControlRotation(SaveSlot->P_Save.Transform.GetRotation().Rotator());
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Loading!"));
+
+		// Load Items
+
+		TArray<AActor*> InteractiveItems;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseInspection::StaticClass(), InteractiveItems);
+
+		bool founditem = false;
+
+		for (int x = 0; x < InteractiveItems.Num(); x++)
+		{
+			for( int y = 0; y < SaveSlot->Item_save.ItemArray.Num(); y++)
+			{
+				if (InteractiveItems[x]->GetActorLocation() == SaveSlot->Item_save.ItemArray[y]->GetActorLocation())
+				{
+					founditem = true;
+					break;
+				}
+			}
+
+			if (!founditem)
+			{
+				GetWorld()->DestroyActor(InteractiveItems[x]);
+			}
+			else
+			{
+				founditem = false;
+			}
+		}
 	}
 	else
 	{
@@ -79,5 +108,25 @@ void USaveGameInstance::SavePlayerCharacter(UGameSaveSystem* SaveSlot)
 		SaveSlot->P_Save.Transform = player->GetTransform();
 		SaveSlot->P_Save.Transform.SetRotation(player->GetControlRotation().Quaternion());
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Saving player!"));
+	}
+}
+
+void USaveGameInstance::SaveInteractableItems(UGameSaveSystem* SaveSlot)
+{
+	TArray<AActor*> InteractiveItems;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseInspection::StaticClass(), InteractiveItems);
+
+	UE_LOG(LogTemp, Warning, TEXT("The number of elements in the array is: %d"), InteractiveItems.Num());
+
+	SaveSlot->Item_save.ItemArray.Empty();
+
+	for (int i = 0; i < InteractiveItems.Num(); i++)
+	{
+		ABaseInspection* InteractiveItem = Cast<ABaseInspection>(InteractiveItems[i]);
+		if (InteractiveItem && SaveSlot)
+		{
+			SaveSlot->Item_save.ItemArray.Add(InteractiveItem);
+			SaveSlot->Item_save.Transform.Add(InteractiveItem->GetActorTransform());
+		}
 	}
 }
