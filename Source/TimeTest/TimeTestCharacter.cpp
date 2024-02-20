@@ -2,7 +2,6 @@
 
 #include "TimeTestCharacter.h"
 
-#include "AssetSelection.h"
 #include "TimeTestProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
