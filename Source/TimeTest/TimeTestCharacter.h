@@ -12,6 +12,7 @@
 #include "GameSaveSystem.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "SanityMeter.h"
 #include "TimeTestCharacter.generated.h"
 
 
@@ -52,13 +53,17 @@ class ATimeTestCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* ShiftTime;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh", meta = (AllowPrivateAccess = "true")) TObjectPtr<UStaticMeshComponent> cameraMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* cameraMesh;
 
-	UPROPERTY(EditAnywhere) UStaticMeshComponent* InspectItem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* InspectItem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sanity Bar", meta = (AllowPrivateAccess = "true")) TObjectPtr<USanityMeter> SanityComponent;
+
 	TObjectPtr<UStaticMeshComponent> Item;
 
 	UPROPERTY(EditAnywhere) USpringArmComponent* SpringArm;
-	UPROPERTY(EditAnywhere) USpringArmComponent* MirrorSpringArm;
+
+	float timer = 0;
 public:
 	ATimeTestCharacter();
 
@@ -75,15 +80,15 @@ public:
 
 	/** Bool for AnimBP to switch to another animation set */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
-	bool bHasCamera;
+	bool bHasRifle;
 
 	/** Setter to set the bool */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void SetHasCamera(bool bNewHasRifle);
+	void SetHasRifle(bool bNewHasRifle);
 
 	/** Getter for the bool */
 	UFUNCTION(BlueprintCallable, Category = Weapon)
-	bool GetHasCamera();
+	bool GetHasRifle();
 
 private:
  

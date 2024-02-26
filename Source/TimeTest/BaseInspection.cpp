@@ -3,6 +3,8 @@
 
 #include "BaseInspection.h"
 
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 ABaseInspection::ABaseInspection()
 {
@@ -42,8 +44,8 @@ void ABaseInspection::Interact_Implementation()
 	IInteractionInterface::Interact_Implementation();
 
 	// Play sound cues here
-	//float volumeMultiplier = 0.5f;
-	// if(throwSound)
-	//UGameplayStatics::PlaySoundAtLocation(this, throwSound, GetActorLocation(), FRotator::ZeroRotator, volumeMultiplier);
+	float volumeMultiplier = 0.5f;
+	 if(PlaySound)
+	UGameplayStatics::PlaySoundAtLocation(this, PlaySound, GetActorLocation(), FRotator::ZeroRotator, volumeMultiplier);
 }
 
