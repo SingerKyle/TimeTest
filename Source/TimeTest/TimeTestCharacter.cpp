@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InspectItem.h"
 #include "SaveGameInstance.h"
+#include "Engine/PointLight.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -21,7 +22,7 @@
 ATimeTestCharacter::ATimeTestCharacter()
 {
 	// Character doesnt have a rifle at start
-	bHasCamera = false;
+	bHasRifle = false;
 	isFlipped = false;
 	
 	// Set size for collision capsule
@@ -45,27 +46,24 @@ ATimeTestCharacter::ATimeTestCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 	
-	//static ConstructorHelpers::FObjectFinder<UStaticMesh> CameraMesh(TEXT("'/Game/3-Assets/SM_Camera02.SM_Camera02'"));
-	//if (cameraMesh)
-	//{
-		//UStaticMesh* camMesh = CameraMesh.Object;
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CameraMesh(TEXT("'/Game/3-Assets/SM_Camera02.SM_Camera02'"));
+	if (CameraMesh.Succeeded())
+	{
+		UStaticMesh* camMesh = CameraMesh.Object;
 		cameraMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sword"));
-		//cameraMesh->SetStaticMesh(camMesh);
+		cameraMesh->SetStaticMesh(camMesh);
 		cameraMesh->SetupAttachment(Mesh1P, "hand_r_camera");
-		cameraMesh->SetRelativeLocation(FVector(40, 0, -20));
+		//cameraMesh->SetRelativeLocation(FVector(40, 0, -20));
 		cameraMesh->SetRelativeRotation(FRotator(0,90,0));
-	//}
+	}
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Timeglass Root"));
 	SceneComponent->SetRelativeLocation(FVector(cameraMesh->GetRelativeLocation().X, cameraMesh->GetRelativeLocation().Y, -10000.0f));
 	SceneComponent->SetupAttachment(GetCapsuleComponent());
 
-	MirrorSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MirrorSpringArm_Camera"));
-	MirrorSpringArm->SetupAttachment(SceneComponent);
-
 	// Attach camera view to character.
 	SceneCaptureComponent = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("Timeglass Component"));
-	SceneCaptureComponent->SetupAttachment(MirrorSpringArm);
+	SceneCaptureComponent->SetupAttachment(SceneComponent);
 
 	// Create Plane Mesh Component
 	PlaneMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlaneMeshComponent"));
@@ -93,6 +91,9 @@ ATimeTestCharacter::ATimeTestCharacter()
 	}
 
 	isViewingItem = false;
+
+	SanityComponent = CreateDefaultSubobject<USanityMeter>(TEXT("Sanity Meter"));
+	AddOwnedComponent(SanityComponent);
 
 }
 
@@ -136,6 +137,30 @@ void ATimeTestCharacter::Tick(float DeltaTime)
 		//InspectItem->SetRelativeRotation(temp);	
 		InspectItem->AddWorldRotation(temp);
 	}
+
+	timer += DeltaTime;
+
+/*	if (timer >= 2.0f)
+	{
+		TArray<AActor*> Lights;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALight::StaticClass(), Lights);
+
+		for (AActor* LightActor : Lights)
+		{
+			ALight* light = Cast<ALight>(LightActor);
+
+			float distance = FVector::Dist(GetActorLocation(), light->GetActorLocation());
+
+			if (distance > 1000)
+			{
+				light->SetEnabled(false);
+			}
+			else
+			{
+				light->SetEnabled(true);
+			}
+		}
+	}*/
 
 }
 
@@ -190,7 +215,7 @@ void ATimeTestCharacter::Interact()
 	InspectItem = getStaticMesh();
 	if (isViewingItem)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+		GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 		isViewingItem = !isViewingItem;
 		GetMesh1P()->ToggleVisibility(true);
 		InspectItem->SetVisibility(false);
@@ -224,6 +249,20 @@ void ATimeTestCharacter::Interact()
 				InspectItem->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 				GetMesh1P()->ToggleVisibility(true);
 				InspectItem->SetVisibility(true);
+			}
+
+		}
+		Start = SceneCaptureComponent->GetComponentLocation();
+		End = Start + SceneCaptureComponent->GetForwardVector() * 1000;
+		
+		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility))
+		{
+			item = Cast<ABaseInspection>(OutHit.GetActor());
+
+			if (item)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test!"));
+				item->Interact_Implementation();
 			}
 		}
 	}
@@ -275,14 +314,14 @@ void ATimeTestCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ATimeTestCharacter::SetHasCamera(bool bNewHasCamera)
+void ATimeTestCharacter::SetHasRifle(bool bNewHasRifle)
 {
-	bHasCamera = bNewHasCamera;
+	bHasRifle = bNewHasRifle;
 }
 
-bool ATimeTestCharacter::GetHasCamera()
+bool ATimeTestCharacter::GetHasRifle()
 {
-	return bHasCamera;
+	return bHasRifle;
 }
 
 // Functions to allow the player to save and load game state

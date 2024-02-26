@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "InteractionInterface.h"
 #include "GameFramework/Actor.h"
-#include "TimeTest.h"
 #include "BaseInspection.generated.h"
 
 UCLASS()
@@ -22,6 +21,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	bool interactive = false;
+	bool IsActive = false;
+
+	//Audio
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio", meta = (AllowPrivateAccess = true)) class USoundBase* PlaySound;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -33,9 +36,4 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) USceneComponent* _rootComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) UStaticMeshComponent* ItemMesh;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly) FInventoryItem ItemData;
-
-	//Audio
-	//UPROPERTY(EditAnywhere, Category = "Audio") class USoundBase* throwSound;
 };

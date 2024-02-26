@@ -30,6 +30,9 @@
 			"Name": "TextureFormatOodle",
 			"Enabled": false
 		},
-		
+		{
+			"Name": "SkeletalMeshModelingTools",
+			"Enabled": true
+		}
 	]
 }
