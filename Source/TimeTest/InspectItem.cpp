@@ -53,7 +53,7 @@ void AInspectItem::Interact_Implementation()
 
 	// Save item to inventory - destroy for now
 	
-	Destroy();
+	//Destroy();
 
 	
 }

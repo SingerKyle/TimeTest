@@ -1,12 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InteractiveDoor.h"
+
+#include "Components/AudioComponent.h"
+#include "Engine/LevelScriptActor.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AInteractiveDoor::AInteractiveDoor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ItemMeshComp(TEXT("'/Game/3-Assets/SM_Door.SM_Door'"));
@@ -18,12 +21,16 @@ AInteractiveDoor::AInteractiveDoor()
 		ItemMesh->SetupAttachment(RootComponent);
 	}
 
+	DoorHandle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Door Handle"));
+	DoorHandle->SetupAttachment(ItemMesh);
+
 	// setup timeline
 	DoorTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Timeline"));
 	TimelineEvent.BindUFunction(this, FName("Test"));
 	TimelineProgress.BindUFunction(this, FName("OnFinish"));
 
 	closed = true;
+	locked = false;
 }
 
 // Called when the game starts or when spawned
@@ -37,7 +44,7 @@ void AInteractiveDoor::BeginPlay()
 		DoorTimeline->SetTimelineFinishedFunc(TimelineProgress);
 		DoorTimeline->SetLooping(false);
 	}
-	
+
 }
 
 // Called every frame
@@ -49,22 +56,63 @@ void AInteractiveDoor::Tick(float DeltaTime)
 
 void AInteractiveDoor::Interact_Implementation()
 {
-	if(!IsActive)
+	// Play sound cues here
+	float volumeMultiplier = 0.5f;
+
+	if (!locked)
 	{
-		if (closed)
+		if (!IsActive)
+		{
+			if (closed)
+			{
+				DoorTimeline->PlayFromStart();
+				IsActive = true;
+			}
+			else
+			{
+				DoorTimeline->ReverseFromEnd();
+				IsActive = true;
+			}
+			closed = !closed;
+		}
+	}
+	else
+	{
+		if (!IsActive)
 		{
 			DoorTimeline->PlayFromStart();
 			IsActive = true;
 		}
+
+		OnDoorOpened.Broadcast();
+
+	}
+
+	if (PlaySound && !AudioComponent->IsPlaying())
+	{
+		if (locked)
+		{
+			AudioComponent->SetSound(LockedSound);
+			AudioComponent->Play();
+		}
 		else
 		{
-			DoorTimeline->ReverseFromEnd();
-			IsActive = true;
+			if (closed)
+			{
+				AudioComponent->SetSound(CloseSound);
+				AudioComponent->Play();
+			}
+			if (!closed)
+			{
+				AudioComponent->SetSound(PlaySound);
+				AudioComponent->Play();
+			}
 		}
-		closed = !closed;
+
+
 	}
-	
-	ABaseInspection::Interact_Implementation();
+
+	//ABaseInspection::Interact_Implementation();
 
 }
 
@@ -75,6 +123,16 @@ void AInteractiveDoor::OnFinish()
 
 void AInteractiveDoor::Test(float val)
 {
-	ItemMesh->SetRelativeRotation(FRotator(0, UKismetMathLibrary::Ease(0, 110, val, EEasingFunc::SinusoidalInOut), 0));
+	if (locked)
+	{
+		DoorHandle->SetRelativeRotation(FRotator(FMath::Clamp(val, 0, 9000), DoorHandle->GetRelativeRotation().Yaw, DoorHandle->GetRelativeRotation().Roll));
+	}
+	else
+	{
+		ItemMesh->SetRelativeRotation(FRotator(0, UKismetMathLibrary::Ease(-4, 100, val, EEasingFunc::SinusoidalInOut), 0));
+		DoorHandle->SetRelativeRotation(FRotator(FMath::Clamp(val, 0, 10), DoorHandle->GetRelativeRotation().Yaw, DoorHandle->GetRelativeRotation().Roll));
+	}
+	// 313462FF
 }
+
 

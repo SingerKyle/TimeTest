@@ -46,24 +46,20 @@ ATimeTestCharacter::ATimeTestCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CameraMesh(TEXT("'/Game/3-Assets/SM_Camera02.SM_Camera02'"));
-	if (CameraMesh.Succeeded())
-	{
-		UStaticMesh* camMesh = CameraMesh.Object;
-		cameraMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sword"));
-		cameraMesh->SetStaticMesh(camMesh);
-		cameraMesh->SetupAttachment(Mesh1P, "hand_r_camera");
-		//cameraMesh->SetRelativeLocation(FVector(40, 0, -20));
-		cameraMesh->SetRelativeRotation(FRotator(0,90,0));
-	}
+	
+	cameraMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Camera"));
+	cameraMesh->SetupAttachment(Mesh1P, "hand_r_camera");
+	cameraMesh->SetRelativeScale3D(FVector(8.2, 6.3, 6.2));
+	
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Timeglass Root"));
 	SceneComponent->SetRelativeLocation(FVector(cameraMesh->GetRelativeLocation().X, cameraMesh->GetRelativeLocation().Y, -10000.0f));
-	SceneComponent->SetupAttachment(GetCapsuleComponent());
+	SceneComponent->SetupAttachment(cameraMesh);
 
 	// Attach camera view to character.
 	SceneCaptureComponent = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("Timeglass Component"));
 	SceneCaptureComponent->SetupAttachment(SceneComponent);
+	SceneCaptureComponent->SetRelativeLocation(FVector(cameraMesh->GetRelativeLocation().X, cameraMesh->GetRelativeLocation().Y, 0));	
 
 	// Create Plane Mesh Component
 	PlaneMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlaneMeshComponent"));
@@ -72,7 +68,7 @@ ATimeTestCharacter::ATimeTestCharacter()
 	{
 		PlaneMeshComponent->SetStaticMesh(PlaneMeshAsset.Object);
 	}
-	PlaneMeshComponent->SetRelativeLocation(FVector(0.0f, -10.0f, 0.0f));
+	PlaneMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 	PlaneMeshComponent->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 	PlaneMeshComponent->SetRelativeScale3D(FVector(0.1, 0.05, 0.05));
 	PlaneMeshComponent->SetupAttachment(cameraMesh);
@@ -91,9 +87,12 @@ ATimeTestCharacter::ATimeTestCharacter()
 	}
 
 	isViewingItem = false;
+	LightCull = true;
 
 	SanityComponent = CreateDefaultSubobject<USanityMeter>(TEXT("Sanity Meter"));
 	AddOwnedComponent(SanityComponent);
+
+	Sensitivity = FVector2D(1, 1);
 
 }
 
@@ -140,27 +139,36 @@ void ATimeTestCharacter::Tick(float DeltaTime)
 
 	timer += DeltaTime;
 
-/*	if (timer >= 2.0f)
+	if (LightCull)
 	{
-		TArray<AActor*> Lights;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALight::StaticClass(), Lights);
-
-		for (AActor* LightActor : Lights)
+		if (timer >= 0.5f)
 		{
-			ALight* light = Cast<ALight>(LightActor);
+			TArray<AActor*> Lights;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALight::StaticClass(), Lights);
 
-			float distance = FVector::Dist(GetActorLocation(), light->GetActorLocation());
+			for (AActor* LightActor : Lights)
+			{
+				ALight* light = Cast<ALight>(LightActor);
 
-			if (distance > 1000)
-			{
-				light->SetEnabled(false);
-			}
-			else
-			{
-				light->SetEnabled(true);
+				float distance = FVector::Dist(GetActorLocation(), light->GetActorLocation());
+				float OtherDistance = FVector::Dist(SceneCaptureComponent->GetComponentLocation(), light->GetActorLocation());
+
+				if (distance > 2250 && OtherDistance > 2250)
+				{
+					light->SetEnabled(false);
+				}
+				else
+				{
+					light->SetEnabled(true);
+				}
 			}
 		}
-	}*/
+	}
+
+	if (SanityComponent->curParanoia > 95)
+	{
+		//GetWorld()->GetFirstPlayerController()->ConsoleCommand("quit");
+	}
 
 }
 
@@ -212,14 +220,16 @@ void ATimeTestCharacter::ShiftTimes()
 
 void ATimeTestCharacter::Interact()
 {
+	if(IsViewingLock)
+	{
+		return;
+	}
+
 	InspectItem = getStaticMesh();
 	if (isViewingItem)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 200.0f;
-		isViewingItem = !isViewingItem;
-		GetMesh1P()->ToggleVisibility(true);
-		InspectItem->SetVisibility(false);
-		//return;
+		ViewingItem();
+		return;
 	}
 
 	FHitResult OutHit;
@@ -229,39 +239,45 @@ void ATimeTestCharacter::Interact()
 	if(GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility))
 	{
 		// Draw line from start to hit location
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
 
 		// Optionally, draw point at hit location
-		DrawDebugPoint(GetWorld(), OutHit.Location, 10.0f, FColor::Red, false, 2.0f);
+		//DrawDebugPoint(GetWorld(), OutHit.Location, 10.0f, FColor::Red, false, 2.0f);
 
 		ABaseInspection* item = Cast<ABaseInspection>(OutHit.GetActor());
 		if (item)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test!"));
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test!"));
 			item->Interact_Implementation();
 
 			if (InspectItem && item->getInteractive() == true)
 			{
-				GetCharacterMovement()->MaxWalkSpeed = 0.0f;
-				isViewingItem = true;
 				InspectItem->SetStaticMesh(item->ItemMesh->GetStaticMesh());
 				InspectItem->SetRelativeScale3D(item->ItemMesh->GetRelativeScale3D() / 2);
-				InspectItem->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
-				GetMesh1P()->ToggleVisibility(true);
-				InspectItem->SetVisibility(true);
+				ViewingItem();
 			}
 
 		}
-		Start = SceneCaptureComponent->GetComponentLocation();
-		End = Start + SceneCaptureComponent->GetForwardVector() * 1000;
+		FHitResult OutHit2;
+		Start = FVector(FirstPersonCameraComponent->GetComponentLocation().X, FirstPersonCameraComponent->GetComponentLocation().Y, FirstPersonCameraComponent->GetComponentLocation().Z - 5000.f);
+		End = Start + FirstPersonCameraComponent->GetForwardVector() * 1000;
 		
-		if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility))
+		//GEngine->AddOnScreenDebugMessage(5, 3, FColor::Blue, FString::Printf(TEXT("Axis - %f %f %f"), OutHit2.Location.X, OutHit2.Location.Y, OutHit2.Location.Z));
+
+		if (GetWorld()->LineTraceSingleByChannel(OutHit2, Start, End, ECC_Visibility))
 		{
-			item = Cast<ABaseInspection>(OutHit.GetActor());
+
+			// Draw line from start to hit location
+			//DrawDebugLine(GetWorld(), Start, End + 5, FColor::Green, false, 2.0f, 0, 1.0f);
+
+			// Optionally, draw point at hit location
+			//DrawDebugPoint(GetWorld(), OutHit2.Location, 10.0f, FColor::Red, false, 2.0f);
+
+			item = Cast<ABaseInspection>(OutHit2.GetActor());
 
 			if (item)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test!"));
+				//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test!"));
 				item->Interact_Implementation();
 			}
 		}
@@ -286,6 +302,25 @@ void ATimeTestCharacter::Load()
 	}
 }
 
+void ATimeTestCharacter::ToggleLightingCull()
+{
+	LightCull = !LightCull;
+
+	if(!LightCull)
+	{
+		TArray<AActor*> Lights;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALight::StaticClass(), Lights);
+
+		for (AActor* LightActor : Lights)
+		{
+			ALight* light = Cast<ALight>(LightActor);
+
+			light->SetEnabled(true);
+
+		}
+	}
+}
+
 void ATimeTestCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -304,13 +339,16 @@ void ATimeTestCharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr && isViewingItem == false)
+	if (Controller != nullptr && !isViewingItem) 
 	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		if(!IsViewingLock)
+		{
+			// add yaw and pitch input to controller
+			AddControllerYawInput(LookAxisVector.X * Sensitivity.X);
+			AddControllerPitchInput(LookAxisVector.Y * Sensitivity.Y);
 
-		UpdateCapture();
+			UpdateCapture();
+		}
 	}
 }
 
@@ -322,6 +360,25 @@ void ATimeTestCharacter::SetHasRifle(bool bNewHasRifle)
 bool ATimeTestCharacter::GetHasRifle()
 {
 	return bHasRifle;
+}
+
+void ATimeTestCharacter::ViewingItem()
+{
+	if (!isViewingItem)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 0.0f;
+		InspectItem->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
+		GetMesh1P()->ToggleVisibility(true);
+		InspectItem->SetVisibility(true);
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 200.0f;
+		GetMesh1P()->ToggleVisibility(true);
+		InspectItem->SetVisibility(false);
+	}
+
+	isViewingItem = !isViewingItem;
 }
 
 // Functions to allow the player to save and load game state

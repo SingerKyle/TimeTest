@@ -6,10 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "SanityMeter.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TIMETEST_API USanityMeter : public UActorComponent
-{
+class TIMETEST_API USanityMeter : public UActorComponent {
 	GENERATED_BODY()
 
 public:	
@@ -24,8 +22,19 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UFUNCTION() void TickSanity(float DeltaTime);
+	UFUNCTION() void handleParanoiaActivities();
 
-	float ThisMuchParanoid;
+	UFUNCTION(BlueprintCallable)
+	void updateEvent(float paranoia);
+	
+	UFUNCTION(BlueprintCallable)
+	float getParanoia();
+	
+	uint8_t curEvent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float curParanoia;
+	
 	float ParanoidIncrease;
 	float MaxParanoidIncrease;
 	float Time = 0;

@@ -8,12 +8,14 @@
 #include "GameFramework/Actor.h"
 #include "InteractiveDoor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDoorOpened);
+
 UCLASS()
 class TIMETEST_API AInteractiveDoor : public ABaseInspection
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AInteractiveDoor();
 
@@ -21,11 +23,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+	UPROPERTY(BlueprintAssignable) FOnDoorOpened OnDoorOpened;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) UStaticMeshComponent* DoorHandle;
+
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	bool closed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool closed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool locked;
 
 	virtual void Interact_Implementation() override;
 

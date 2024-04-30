@@ -11,8 +11,8 @@ UCLASS()
 class TIMETEST_API ABaseInspection : public AActor, public IInteractionInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ABaseInspection();
 
@@ -23,9 +23,14 @@ protected:
 	bool interactive = false;
 	bool IsActive = false;
 
-	//Audio
+	//Audio - open
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio", meta = (AllowPrivateAccess = true)) class USoundBase* PlaySound;
-public:	
+	//Audio - locked
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio", meta = (AllowPrivateAccess = true)) class USoundBase* LockedSound;
+	//Audio - Closed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio", meta = (AllowPrivateAccess = true)) class USoundBase* CloseSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio", meta = (AllowPrivateAccess = true)) class UAudioComponent* AudioComponent;
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Components/SceneCaptureComponent2D.h"
-#include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameSaveSystem.h"
@@ -18,6 +17,7 @@
 
 class UInputComponent;
 class USkeletalMeshComponent;
+class UStaticMeshComponent;
 class USceneComponent;
 class UCameraComponent;
 class UAnimMontage;
@@ -30,7 +30,7 @@ class ATimeTestCharacter : public ACharacter
 	GENERATED_BODY()
 
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true"));
 	USkeletalMeshComponent* Mesh1P;
 
 	/** First person camera */
@@ -53,15 +53,21 @@ class ATimeTestCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* ShiftTime;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* cameraMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Capture", meta = (AllowPrivateAccess = "true")) class USceneCaptureComponent2D* SceneCaptureComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true")) UStaticMeshComponent* InspectItem;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true")) class UStaticMeshComponent* PlaneMeshComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sanity Bar", meta = (AllowPrivateAccess = "true")) TObjectPtr<USanityMeter> SanityComponent;
+	UPROPERTY(VisibleAnywhere, Category = "Components") USceneComponent* SceneComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (AllowPrivateAccess = "true")); UStaticMeshComponent* cameraMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Meshes", meta = (AllowPrivateAccess = "true")) class UStaticMeshComponent* InspectItem;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sanity Bar", meta = (AllowPrivateAccess = "true")) TObjectPtr<USanityMeter> SanityComponent;
 
 	TObjectPtr<UStaticMeshComponent> Item;
 
-	UPROPERTY(EditAnywhere) USpringArmComponent* SpringArm;
+	UPROPERTY(VisibleAnywhere) USpringArmComponent* SpringArm;
 
 	float timer = 0;
 public:
@@ -90,8 +96,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetHasRifle();
 
+	UFUNCTION(BlueprintCallable, Category = "Interaction") void ViewingItem();
+
 private:
- 
+	// Mouse Sensitivity Options :)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true)) FVector2D Sensitivity;
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -119,14 +128,11 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Capture") class USceneCaptureComponent2D* SceneCaptureComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") class UStaticMeshComponent* PlaneMeshComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") USceneComponent* SceneComponent;
+	UFUNCTION(BlueprintCallable, Category = "Lighting Cull") void ToggleLightingCull();
 
 	bool isFlipped;
-	bool isViewingItem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool isViewingItem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool LightCull;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool IsViewingLock;
 };
 

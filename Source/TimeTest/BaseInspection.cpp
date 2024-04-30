@@ -3,6 +3,8 @@
 
 #include "BaseInspection.h"
 
+#include "Components/AudioComponent.h"
+#include "Sound/SoundBase.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -15,6 +17,10 @@ ABaseInspection::ABaseInspection()
 	RootComponent = _rootComponent;
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Item Mesh"));
+
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio Component"));
+	AudioComponent->SetAutoActivate(false);
+	AudioComponent->SetupAttachment(RootComponent);
 
 	/*
 	// audio
@@ -45,7 +51,11 @@ void ABaseInspection::Interact_Implementation()
 
 	// Play sound cues here
 	float volumeMultiplier = 0.5f;
-	 if(PlaySound)
-	UGameplayStatics::PlaySoundAtLocation(this, PlaySound, GetActorLocation(), FRotator::ZeroRotator, volumeMultiplier);
+
+	if (PlaySound && !AudioComponent->IsPlaying())
+	{
+		AudioComponent->SetSound(PlaySound);
+		AudioComponent->Play();
+	}
 }
 
